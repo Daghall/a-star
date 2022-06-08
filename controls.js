@@ -28,12 +28,12 @@ export default class Controls {
     this.setupEventListeners();
   }
 
-  async setTarget(x, y, event) {
+  async setTarget(x, y) {
     const square = this.map.getSquare(x, y);
     if (square === UNPASSABLE) return;
+
     this.end = {x, y};
     this.map.setTarget(this.end);
-    this.targetMode = event.type === "mousemove" ? true : false;
     await this.restartPathFinder({end: this.end});
     this.draw();
   }
@@ -44,7 +44,6 @@ export default class Controls {
 
     this.start = {x, y};
     this.map.setStart(this.start);
-    this.startMode = event.type === "mousemove" ? true : false;
     await this.restartPathFinder({start: this.start});
     this.draw();
   }
@@ -101,14 +100,6 @@ export default class Controls {
           this.options.animate = false;
           this.options.livePathing = false;
           break;
-        case "s":
-          this.startMode = true;
-          this.targetMode = false;
-          break;
-        case "e":
-          this.startMode = false;
-          this.targetMode = true;
-          break;
         case "w":
           this.options.wayPoints = !this.options.wayPoints;
           if (this.options.wayPoints) {
@@ -161,17 +152,30 @@ export default class Controls {
     document.addEventListener("mousedown", (event) => {
       if (event.target !== this.canvasElement) return;
       this.mouseDown = true;
+      const {row, col} = this.getCoords(event);
+
+      if (this.start.x === row && this.start.y === col) {
+        this.startMode = true;
+      } else if (this.map.end.x === row && this.map.end.y === col) {
+        this.targetMode = true;
+      }
+
       if (!this.options.livePathing) {
         this.pathFinder.reset();
         this.options.animate = false;
       }
-      if (this.mouseDown && event.target === this.canvasElement) {
+      if (event.target === this.canvasElement) {
         this.lastClicked = this.click(event);
       }
     });
 
     document.addEventListener("mouseup", () => {
+      if (this.startMode || this.targetMode) {
+        this.canvasElement.style.cursor = "grab";
+      }
       this.mouseDown = false;
+      this.startMode = false;
+      this.targetMode = false;
       this.displayOptions();
     });
 
@@ -180,16 +184,34 @@ export default class Controls {
 
       if (this.mouseDown) {
         const {row, col} = this.getCoords(event);
+        if (this.startMode) {
+          this.canvasElement.style.cursor = "grabbing";
+          this.setStart(row, col);
+          return;
+        } else if (this.targetMode) {
+          this.canvasElement.style.cursor = "grabbing";
+          this.setTarget(row, col);
+          return;
+        }
         const gridSquare = this.gui.map.getSquare(row, col);
         if (typeof this.lastClicked === "number" && this.lastClicked !== gridSquare) {
           this.click(event);
         }
-      } else if (this.options.livePathing) {
+      } else {
         const {row, col} = this.getCoords(event);
-        if (this.targetMode) {
-          this.setTarget(row, col, event);
-        } else if (this.startMode) {
-          this.setStart(row, col, event);
+        if (this.start.x === row && this.start.y === col ||
+            this.end.x === row && this.end.y === col
+        ) {
+          this.canvasElement.style.cursor = "grab";
+        } else {
+          this.canvasElement.style.cursor = "crosshair";
+        }
+        if (this.options.livePathing) {
+          if (this.targetMode) {
+            this.setTarget(row, col, event);
+          } else if (this.startMode) {
+            this.setStart(row, col, event);
+          }
         }
       }
     });
@@ -230,7 +252,7 @@ export default class Controls {
   }
 
   displayOptions() {
-    window.options.innerText = `${JSON.stringify(this.options, null, 2)}\n\n\n`;
+    window.options.innerText = `${JSON.stringify(this.options, null, 2)}\n\n`;
   }
 
   random(max) {
