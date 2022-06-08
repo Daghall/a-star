@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>A*</title>
+    <style>
+      canvas {
+        cursor: crosshair;
+        display: block;
+      }
+      pre {
+        display: inline-block;
+        width: 190px;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="arithmetic" width="642" height="522">
+      Seriously, upgrade...
+    </canvas>
+    <pre id="options"></pre><pre>
+space – Step through algorithm (requires "wayPoints": false)
+c     – Toggle display of costs (requires "wayPoints": false)
+l     – Toggle live pathing
+w     – Toggle showing only path or pathing algorithm
+a     – Toggle animating algorithm (requires "wayPoints": false)
+s/e   – Click to place start/end
+r     – Reset path
+click – Place/remove blocks, or set start/end (s/e)</pre>
+    <script type="module" src="gui.js"></script>
+  </body>
+</html>
