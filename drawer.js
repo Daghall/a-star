@@ -3,11 +3,14 @@ import {colors, fonts} from "./constants.js";
 export default class Drawer {
   constructor(gui) {
     this.gui = gui;
+    this.drawHex = this.gui.type === "hex";
     this.gridSize = this.gui.properties.gridSize;
     this.canvas = this.gui.canvas;
     this.canvas.lineWidth = 1;
     this.canvas.strokeStyle = colors.default;
     this.canvas.fillStyle = colors.default;
+    this.fourth = this.gridSize / 4;
+    this.half = this.gridSize / 2;
   }
 
   draw(pathFinder) {
@@ -85,22 +88,75 @@ export default class Drawer {
   }
 
   drawGrid() {
+    // function r() {
+    //   return Math.round(Math.random() * 255);
+    // }
+    const fth = this.fourth;
+    const half = this.half;
     this.canvas.strokeStyle = colors.default;
     this.gui.map.getGrid().forEach((row, i) => {
-      const y = this.gridSize * i + 1;
+      let y;
+      if (this.drawHex) {
+        y = 3 * fth * i + 1;
+      } else {
+        y = this.gridSize * i + 1;
+      }
+      const height = Math.sqrt(fth ** 2 + half ** 2);
       row.forEach((col, j) => {
         this.canvas.beginPath();
-        const x = this.gridSize * j + 1;
-        this.canvas.moveTo(j * this.gridSize, 0);
-        this.canvas.rect(x, y, this.gridSize, this.gridSize);
+        if (this.drawHex) {
+          // const x = this.gridSize * j;
+          const x = this.gridSize * j - half * (i % 2) + 1;
+          // this.drawHex(x, y);
+          // this.canvas.strokeStyle = `rgb(${r()},${r()},${r()})`;
+          // this.canvas.strokeStyle = "rgba(0,0,0,0.5)";
+          this.canvas.font = "10px arial";
+          this.canvas.fillStyle = "black";
+          this.canvas.fillText(`${i}:${j}`, x + 0 + this.half, y + this.half + 5);
+          this.canvas.moveTo(x, y + 3 * fth);
+          this.canvas.lineTo(x, y + fth);
+          this.canvas.lineTo(x + half, y);
+          this.canvas.lineTo(x + this.gridSize, y + fth);
+          if (i + 1 === this.gui.map.rows) {
+            if (j + 1 === this.gui.map.cols) {
+              this.canvas.moveTo(x + half, y + height);
+            } else {
+              this.canvas.moveTo(x + this.gridSize, y + 3 * fth);
+              this.canvas.lineTo(x + half, y + height);
+            }
+            this.canvas.lineTo(x, y + 3 * fth);
+          }
+          if (j + 1 === this.gui.map.cols) {
+            if (i + 1 === this.gui.map.rows) {
+              this.canvas.moveTo(x + this.gridSize, y + fth);
+            }
+            this.canvas.lineTo(x + this.gridSize, y + 3 * fth);
+            if (i % 2 === 0) {
+              this.canvas.lineTo(x + half, y + height);
+            }
+          }
+          // BACKUP
+          // this.canvas.moveTo(x, y + fth);
+          // this.canvas.lineTo(x + half, y);
+          // this.canvas.lineTo(x + this.gridSize, y + fth);
+          // this.canvas.lineTo(x + this.gridSize, y + 3 * fth);
+          // this.canvas.lineTo(x + half, y + this.gridSize);
+          // this.canvas.lineTo(x, y + 3 * fth);
+          // this.canvas.lineTo(x, y + fth);
 
-        this.canvas.fillStyle = colors.default;
-        const gridValue = this.gui.map.getSquare(i, j);
-        switch (gridValue) {
-          case 1:
-            this.canvas.fill();
-            break;
+        } else {
+          const x = this.gridSize * j + 1;
+          // this.canvas.moveTo(j * this.gridSize, 0);
+          this.canvas.rect(x, y, this.gridSize, this.gridSize);
+          this.canvas.fillStyle = colors.default;
+          const gridValue = this.gui.map.getSquare(i, j);
+          switch (gridValue) {
+            case 1:
+              this.canvas.fill();
+              break;
+          }
         }
+
         this.canvas.stroke();
       });
     });

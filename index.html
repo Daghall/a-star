@@ -6,6 +6,7 @@
       canvas {
         cursor: crosshair;
         display: block;
+        /* border: 1px solid black; */
       }
       pre {
         display: inline-block;
@@ -14,7 +15,7 @@
     </style>
   </head>
   <body>
-    <canvas id="a-star" width="642" height="522">
+    <canvas id="a-star" width="642" height="525">
       Seriously, upgrade...
     </canvas>
     <pre id="options"></pre><pre>
@@ -25,6 +26,12 @@ w     – Toggle showing only path or pathing algorithm
 a     – Toggle animating algorithm (requires "wayPoints": false)
 r     – Reset path
 click – Place/remove blocks, or set start/end (s/e)</pre>
+<p>
+  Display: 
+  <a href="#hex">⬡⬢</a> <a href="#square">□■</a>
+  <button>⬡⬢</button>
+  <button>□■</button>
+</p>
     <script type="module" src="gui.js"></script>
   </body>
 </html>

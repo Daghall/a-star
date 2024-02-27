@@ -5,8 +5,14 @@ export default class Map {
   constructor(gui) {
     const {canvasHeight, canvasWidth, gridSize} = gui.properties;
     this.map = [];
-    this.rows = Math.floor(canvasHeight / gridSize);
-    this.cols = Math.floor(canvasWidth / gridSize);
+    if (gui.type === "hex") {
+      this.rows = Math.floor(canvasHeight / (gridSize / 4 * 3));
+      this.cols = Math.floor(canvasWidth / gridSize);
+      console.log("XXX", this.rows, this.cols); // eslint-disable-line no-console
+    } else {
+      this.rows = Math.floor(canvasHeight / gridSize);
+      this.cols = Math.floor(canvasWidth / gridSize);
+    }
 
     for (let row = 0; row < this.rows; ++row) {
       this.map[row] = [];

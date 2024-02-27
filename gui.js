@@ -4,11 +4,12 @@ import Drawer from "./drawer.js";
 import Map from "./map.js";
 
 class Gui {
-  constructor() {
+  constructor(type) {
     const canvasElement = document.querySelector("canvas");
     const canvasWidth = canvasElement.getAttribute("width");
     const canvasHeight = canvasElement.getAttribute("height");
     const gridSize = 40;
+    this.type = type;
     this.properties = {
       canvasWidth,
       canvasHeight,
@@ -38,7 +39,8 @@ class Gui {
 }
 
 function init() {
-  const gui = new Gui();
+  const type = window.location.hash.slice(1) || "square";
+  const gui = new Gui(type);
   gui.draw();
 }
 
